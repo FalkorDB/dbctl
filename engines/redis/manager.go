@@ -71,6 +71,10 @@ func NewManager() (engines.DBManager, error) {
 		properties["redisHost"] = fmt.Sprintf("127.0.0.1:%s", viper.GetString(constant.KBEnvServicePort))
 	}
 
+	if viper.IsSet("TLS_ENABLED") {
+		properties["EnableTLS"] = true
+	}
+	
 	managerBase, err := engines.NewDBManagerBase(logger)
 	if err != nil {
 		return nil, err
