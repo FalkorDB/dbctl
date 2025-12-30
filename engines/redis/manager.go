@@ -72,9 +72,9 @@ func NewManager() (engines.DBManager, error) {
 	}
 
 	if viper.IsSet("TLS_ENABLED") {
-		properties["EnableTLS"] = true
+		properties["EnableTLS"] = "true"
 	}
-	
+
 	managerBase, err := engines.NewDBManagerBase(logger)
 	if err != nil {
 		return nil, err
