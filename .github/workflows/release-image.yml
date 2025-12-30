@@ -66,6 +66,7 @@ jobs:
           context: .
           file: ./docker/Dockerfile
           push: true
+          platforms: linux/amd64,linux/arm64
           tags: |
             falkordb/kubeblocks-dbctl:${{ needs.release-version.outputs.release-version }}
             falkordb/kubeblocks-dbctl:latest
