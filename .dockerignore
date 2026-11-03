@@ -1,0 +1,3 @@
+# Checkout metadata (incl. per-job tokens in .git/config) would change the build
+# context on every run and invalidate cached layers.
+.git

@@ -70,7 +70,7 @@ jobs:
           platforms: ${{ matrix.platform }}
           tags: falkordb/kubeblocks-dbctl:scan-${{ matrix.arch }}
           cache-from: type=gha,scope=release-${{ matrix.arch }}
-          cache-to: type=gha,mode=max,scope=release-${{ matrix.arch }}
+          cache-to: type=gha,mode=max,scope=release-${{ matrix.arch }},ignore-error=true
 
       - name: Scan image with Grype
         id: grype
