@@ -29,7 +29,9 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
+	"go.uber.org/zap"
 	"k8s.io/klog/v2"
+	ctrl "sigs.k8s.io/controller-runtime"
 	kzap "sigs.k8s.io/controller-runtime/pkg/log/zap"
 )
 
@@ -108,6 +110,16 @@ func initConfig() {
 		CliVersion:     cliVersion,
 		RuntimeVersion: strings.ReplaceAll(runtimeVer, "\n", ""),
 	}
+}
+
+// initLogger sets the global logger. Logs always go to stderr so that commands
+// whose stdout is parsed (e.g. getrole) keep a clean result.
+func initLogger() {
+	kOpts := []kzap.Opts{kzap.UseFlagOptions(&opts), kzap.WriteTo(os.Stderr)}
+	if strings.EqualFold("debug", viper.GetString("zap-log-level")) {
+		kOpts = append(kOpts, kzap.RawZapOpts(zap.AddCaller()))
+	}
+	ctrl.SetLogger(kzap.New(kOpts...))
 }
 
 func init() {

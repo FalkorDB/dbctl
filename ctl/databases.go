@@ -49,6 +49,8 @@ dbctl mongodb createuser --username root --password password
 			return errors.New("please specify a database type supported by dbctl, the valid types are: " + strings.Join(models.GetEngineTypeListStr(), ", "))
 		}
 
+		initLogger()
+
 		// Initialize DB Manager
 		err := register.InitDBManager(dbType)
 		if err != nil {

@@ -59,7 +59,7 @@ func (mgr *Manager) GetReplicaRole(ctx context.Context) (string, error) {
 	// We use the role obtained from Sentinel as the sole source of truth.
 	masterAddr, err := mgr.sentinelClient.GetMasterAddrByName(ctx, mgr.masterName).Result()
 	if err != nil {
-		mgr.Logger.Info("failed to get master address from Sentinel, try to get from Redis", "error", err.Error())
+		mgr.Logger.Info("failed to get master address from Sentinel, falling back to INFO replication; role reflects this pod's own view", "error", err.Error())
 		return getRoleFromRedisClient()
 	}
 	masterIP := masterAddr[0]
