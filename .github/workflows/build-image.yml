@@ -21,10 +21,10 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # v3.7.0
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3.12.0
 
       - name: Set up Go
         uses: actions/setup-go@v5
@@ -32,7 +32,7 @@ jobs:
           go-version: '1.22'
 
       - name: Build Docker image (no push)
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@ca052bb54ab0790a636c9b5f226502c73d547a25 # v5.4.0
         with:
           context: .
           file: ./docker/Dockerfile
@@ -43,7 +43,7 @@ jobs:
 
       - name: Scan image with Grype
         id: grype
-        uses: anchore/scan-action@v7
+        uses: anchore/scan-action@27805bf3b4e84b4a5c980df22ed233c00390a439 # v7.4.2
         with:
           image: falkordb/kubeblocks-dbctl:ci-${{ github.sha }}
           only-fixed: true
@@ -54,13 +54,17 @@ jobs:
 
       - name: Show Grype results
         if: always() && steps.grype.outputs.sarif != ''
+        # The SARIF holds every fixable finding; the summary lists only high and critical ones.
         run: |
-          jq -r '.runs[0].results[] | "| \(.ruleId) | \(.level) | \(.message.text | split("\n")[0]) |"' \
+          jq -r '.runs[0].results[]
+            | (.message.text | capture("^A (?<sev>critical|high) vulnerability"; "i")?) as $m
+            | select($m != null)
+            | "| \(.ruleId) | \($m.sev) | \(.message.text | split("\n")[0]) |"' \
             "${{ steps.grype.outputs.sarif }}" > grype-rows.md || true
           {
-            echo "### Grype scan: $(wc -l < grype-rows.md) fixable findings"
+            echo "### Grype scan: $(wc -l < grype-rows.md) fixable high/critical findings"
             echo
-            echo "| ID | Level | Summary |"
+            echo "| ID | Severity | Summary |"
             echo "| --- | --- | --- |"
             head -n 200 grype-rows.md
           } >> "$GITHUB_STEP_SUMMARY"
